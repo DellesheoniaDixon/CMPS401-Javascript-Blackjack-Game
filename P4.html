@@ -24,11 +24,16 @@
         </div>
         <button id="hitButton" onClick="getCard()"> Hit </button>
         <button id="standButton"> Stand </button>
-        <button id="dealButton" onClick="getCard()"> Deal </button>
+        <button id="dealButton" onClick="deal()"> Deal </button>
         
         <script type="text/javascript">
             // Methods
             function initGame() {
+            }
+
+            function deal() {
+                getCard();
+                getCard();
             }
 
             function getCard() {
@@ -78,6 +83,10 @@
                     console.log("Total: " + playerTotal + " |  Stand or Hit?");
                 }
   
+            }
+
+            function getDealerCard() {
+
             }
 
             function calcCardVal(img) {
