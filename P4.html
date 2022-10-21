@@ -14,9 +14,11 @@
 
         <div>
             <h1> Your hand: </h1>
-            <img width="100" height="140" src="cards/back.png" id="playerHand1"/>
-            <img width="100" height="140" src="cards/back.png" id="playerHand2"/>
-            <img width="100" height="140" id="playerHand3"/>
+            <div id="player">
+                <img width="100" height="140" src="cards/back.png" id="playerHand1"/>
+                <img width="100" height="140" src="cards/back.png" id="playerHand2"/>
+            </div>
+            
             <div id="playerTotalDiv">
                 <h3> Total: </h3></br>
             </div>
@@ -41,7 +43,7 @@
                 var maxCardNum = cards.length - 1;
                 console.log("IMG ARR LENGTH: " + cards.length);
 
-                // Get random card and it's value
+                // Get random card and its value
                 cardNum = Math.floor(Math.random()*(maxCardNum)) + 1;   
                 img = cards[cardNum];           // cardNum used as an index in the cards array
                 cardValue = calcCardVal(img);   // call method to calculate the card's value
@@ -68,8 +70,8 @@
                     
                 }
                 // if 2 cards are dealt, deal a 3rd card
-                else if (playerCardCounter == 2) {
-                    document.getElementById('playerHand3').src = `./cards/${img}`;
+                else if (playerCardCounter >= 2) {
+                    appendPlayerCard(img);
                 }
                 playerCardCounter++;
 
@@ -128,6 +130,16 @@
                 var playerTotalStr = "<h3> Total: " + playerTotal + " </h3></br>";
                 document.getElementById('playerTotalDiv').innerHTML = playerTotalStr;
             }
+
+            function appendPlayerCard(img) {
+                //append card image to player's hand instead of updating tags
+                var newCard = document.createElement('img');
+                newCard.width = 100;
+                newCard.height = 140;
+                newCard.src = `./cards/${img}`;
+                document.getElementById('player').appendChild(newCard);
+            }
+
             // Main code
             cards = ['back.png', '2s.png', '3s.png', '4s.png', '5s.png', '6s.png', '7s.png', '8s.png', '9s.png', '10s.png', 'as.png',
             'js.png', 'qs.png', 'ks.png', '2c.png', '3c.png', '4c.png', '5c.png', '6c.png', '7c.png', '8c.png', '9c.png', '10c.png', 'ac.png',
