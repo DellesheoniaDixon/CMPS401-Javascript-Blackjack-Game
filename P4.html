@@ -30,9 +30,9 @@
             
         </div>
 
-        <button id="hitButton" onClick="getCard(); getDealerCard();"> Hit </button>
-        <button id="standButton" onClick="getDealerCard()"> Stand </button>
-        <button id="dealButton" onClick="deal()"> Deal </button>
+        <button id="hitButton" onClick="getCard(); getDealerCard(); roundCheck()"> Hit </button>
+        <button id="standButton" onClick="getDealerCard(); roundCheck()"> Stand </button>
+        <button id="dealButton" onClick="deal(); roundCheck()"> Deal </button>
         
         <script type="text/javascript">
             // Methods
@@ -82,17 +82,6 @@
                     appendPlayerCard(img);
                 }
                 playerCardCounter++;
-
-
-                // if player exceeds 21, disabled the btns
-                if (playerTotal > 21) {
-                    document.getElementById('hitButton').disabled = true;
-                    document.getElementById('standButton').disabled = true;
-                    window.alert("BUST! Your Score: " + playerTotal + " > 21");
-                }
-                else {
-                    console.log("Total: " + playerTotal + " |  Stand or Hit?");
-                }
   
             }
 
@@ -189,6 +178,34 @@
                 newCard.height = 140;
                 newCard.src = `./cards/${img}`;
                 document.getElementById('dealer').appendChild(newCard);
+            }
+
+            function roundCheck() {
+                // dealer
+                if (dealerTotal == 21) {
+                    disableButtons();
+                    window.alert("DEALER BLACKJACK! Your Score: " + playerTotal);
+                } else if (dealerTotal > 21) {
+                    disableButtons();
+                    window.alert("DEALER BUST! You win!");
+                }
+
+                // player
+                if (playerTotal == 21) {
+                    disableButtons();
+                    window.alert("BLACKJACK! You win!");
+                } else if (playerTotal > 21) {
+                    disableButtons();
+                    window.alert("BUST! Your Score: " + playerTotal + " > 21");
+                }
+                else {
+                    console.log("Total: " + playerTotal + " |  Stand or Hit?");
+                }
+            }
+
+            function disableButtons() {
+                document.getElementById('hitButton').disabled = true;
+                document.getElementById('standButton').disabled = true;
             }
 
 
