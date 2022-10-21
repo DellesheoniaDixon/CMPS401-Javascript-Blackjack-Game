@@ -1,0 +1,147 @@
+<html>
+    <head>
+        <title> Worms Reloaded </title>
+    </head>
+    <body>
+        <div>
+            <h1> Dealer's hand: </h1>
+            <img width="100" height="140" src="cards/back.png"/>
+            <img width="100" height="140" src="cards/back.png"/>
+            <h3> Total: </h3>
+        </div>
+
+        </br>
+
+        <div>
+            <h1> Your hand: </h1>
+            <img width="100" height="140" src="cards/back.png" id="playerHand1"/>
+            <img width="100" height="140" src="cards/back.png" id="playerHand2"/>
+            <img width="100" height="140" id="playerHand3"/>
+            <div id="playerTotalDiv">
+                <h3> Total: </h3></br>
+            </div>
+            
+        </div>
+        <button id="hitButton" onClick="getCard()"> Hit </button>
+        <button id="standButton"> Stand </button>
+        <button id="dealButton" onClick="getCard()"> Deal </button>
+        
+        <script type="text/javascript">
+            // Methods
+            function initGame() {
+            }
+
+            function getCard() {
+                var playerTotalAce = 0;     // every time the player gets a card, playerTotalAce = 0 (will make skip if statement if the card the player gets isn't an Ace)
+                var maxCardNum = cards.length - 1;
+                console.log("IMG ARR LENGTH: " + cards.length);
+
+                // Get random card and it's value
+                cardNum = Math.floor(Math.random()*(maxCardNum)) + 1;   
+                img = cards[cardNum];           // cardNum used as an index in the cards array
+                cardValue = calcCardVal(img);   // call method to calculate the card's value
+                console.log("  => " + cardNum + " | " + img + " | " + cardValue);
+
+                // adds cardValue to playerTotal and updates the total headers    
+                playerTotal += cardValue;              
+                updateTotals();
+
+                //moves selected cards from cards arr to cardsOutOfDeck arr
+                cardsOutOfDeck.push(cards.splice(cardNum, 1));
+                console.log("  => Cards Removed: " + cardsOutOfDeck);
+                
+                // if a card isn't dealt, deal left card and hit btn is disabled
+                if (playerCardCounter == 0) { 
+                    document.getElementById('playerHand1').src = `./cards/${img}`;
+                }
+                // if 1 card is dealt, deal right card, disable the deal btn, and enable hit and stand btns
+                else if (playerCardCounter == 1) {
+                    document.getElementById('playerHand2').src = `./cards/${img}`;
+                    document.getElementById('dealButton').disabled = true;
+                    document.getElementById('hitButton').disabled = false;
+                    document.getElementById('standButton').disabled = false;
+                    
+                }
+                // if 2 cards are dealt, deal a 3rd card
+                else if (playerCardCounter == 2) {
+                    document.getElementById('playerHand3').src = `./cards/${img}`;
+                }
+                playerCardCounter++;
+
+                // if player exceeds 21, disabled the btns
+                if (playerTotal > 21) {
+                    document.getElementById('hitButton').disabled = true;
+                    document.getElementById('standButton').disabled = true;
+                    window.alert("BUST! Your Score: " + playerTotal + " > 21");
+                }
+                else {
+                    console.log("Total: " + playerTotal + " |  Stand or Hit?");
+                }
+  
+            }
+
+            function calcCardVal(img) {
+                var num = 0;
+                str = img.charAt(0);
+                
+                //only 10 has a 1, so if it does get the next char and convert to an int
+                if (str == '1') {
+                    str += img.charAt(1);
+                    num = parseInt(str);
+                }
+                // if face card, val = 10
+                else if (str == 'j' || str == 'q' || str == 'k') {
+                    num = 10;
+                }
+                // if card drawn is an ace
+                else if (str == 'a') {
+                    // if playerTotal > 10 (11 + 11 = 22), player would bust
+                    if (playerTotal > 10) {
+                        num = 1;
+                    }
+                    // else playerTotal <= 10 (10 + 11 = 21), Ace = 1 or 11
+                    else {  
+                        //playerLowTotal = playerTotal + 1;   //keeps playerTotal if Ace = 1
+                        //playerHighTotal = playerTotal + 11;
+
+                        num = 11;
+                    }
+                }
+                // just parse if not 10 or a face card
+                else {
+                    num = parseInt(str);
+                }
+                return num;
+            }
+
+            function updateTotals() {
+                // updates totals
+                var playerTotalStr = "<h3> Total: " + playerTotal + " </h3></br>";
+                document.getElementById('playerTotalDiv').innerHTML = playerTotalStr;
+            }
+            // Main code
+            cards = ['back.png', '2s.png', '3s.png', '4s.png', '5s.png', '6s.png', '7s.png', '8s.png', '9s.png', '10s.png', 'as.png',
+            'js.png', 'qs.png', 'ks.png', '2c.png', '3c.png', '4c.png', '5c.png', '6c.png', '7c.png', '8c.png', '9c.png', '10c.png', 'ac.png',
+            'jc.png', 'qc.png', 'kc.png', '2d.png', '3d.png', '4d.png', '5d.png', '6d.png', '7d.png', '8d.png', '9d.png', '10d.png', 'ad.png',
+            'jd.png', 'qd.png', 'kd.png', '2h.png', '3h.png', '4h.png', '5h.png', '6h.png', '7h.png', '8h.png', '9h.png', '10h.png', 'ah.png',
+            'jh.png', 'qh.png', 'kh.png'];
+
+            initGame();
+            cardsOutOfDeck = [];
+            var cardNum = 0;
+            var playerCardCounter = 0;
+
+            playerLowTotal = 0;
+            playerHighTotal = 0;
+
+            var dealerTotal = 0;
+            var dealerTotalAce = 0;
+            var playerTotal = 0;
+
+            document.getElementById('dealButton').disabled = false;
+            document.getElementById('hitButton').disabled = true;
+            document.getElementById('standButton').disabled = true;
+
+        </script>
+    </body>
+</html>
