@@ -5,30 +5,45 @@
     <body>
         <div>
             <h1> Dealer's hand: </h1>
-            <img width="100" height="140" src="cards/back.png"/>
-            <img width="100" height="140" src="cards/back.png"/>
-            <h3> Total: </h3>
+            <div id="dealer">
+                <img width="100" height="140" src="cards/back.png" id="dealerHand1"/>
+                <img width="100" height="140" src="cards/back.png" id="dealerHand2"/>
+            </div>
+
+            <div id="dealerTotalDiv">
+                <h3> Total: </h3>
+            </div>
         </div>
 
         </br>
 
         <div>
             <h1> Your hand: </h1>
-            <img width="100" height="140" src="cards/back.png" id="playerHand1"/>
-            <img width="100" height="140" src="cards/back.png" id="playerHand2"/>
-            <img width="100" height="140" id="playerHand3"/>
+            <div id="player">
+                <img width="100" height="140" src="cards/back.png" id="playerHand1"/>
+                <img width="100" height="140" src="cards/back.png" id="playerHand2"/>
+            </div>
+            
             <div id="playerTotalDiv">
                 <h3> Total: </h3></br>
             </div>
             
         </div>
-        <button id="hitButton" onClick="getCard()"> Hit </button>
-        <button id="standButton"> Stand </button>
-        <button id="dealButton" onClick="getCard()"> Deal </button>
+
+        <button id="hitButton" onClick="getCard(); getDealerCard(); roundCheck()"> Hit </button>
+        <button id="standButton" onClick="getDealerCard(); roundCheck()"> Stand </button>
+        <button id="dealButton" onClick="deal(); roundCheck()"> Deal </button>
         
         <script type="text/javascript">
             // Methods
             function initGame() {
+            }
+
+            function deal() {
+                getCard();
+                getCard();
+                getDealerCard();
+                getDealerCard();
             }
 
             function getCard() {
@@ -36,7 +51,7 @@
                 var maxCardNum = cards.length - 1;
                 console.log("IMG ARR LENGTH: " + cards.length);
 
-                // Get random card and it's value
+                // Get random card and its value
                 cardNum = Math.floor(Math.random()*(maxCardNum)) + 1;   
                 img = cards[cardNum];           // cardNum used as an index in the cards array
                 cardValue = calcCardVal(img);   // call method to calculate the card's value
@@ -63,21 +78,45 @@
                     
                 }
                 // if 2 cards are dealt, deal a 3rd card
-                else if (playerCardCounter == 2) {
-                    document.getElementById('playerHand3').src = `./cards/${img}`;
+                else if (playerCardCounter >= 2) {
+                    appendPlayerCard(img);
                 }
                 playerCardCounter++;
-
-                // if player exceeds 21, disabled the btns
-                if (playerTotal > 21) {
-                    document.getElementById('hitButton').disabled = true;
-                    document.getElementById('standButton').disabled = true;
-                    window.alert("BUST! Your Score: " + playerTotal + " > 21");
-                }
-                else {
-                    console.log("Total: " + playerTotal + " |  Stand or Hit?");
-                }
   
+            }
+
+            function getDealerCard() {
+                // the dealer has to stop pulling cards if they have a value of 17 or higher
+                if (dealerTotal < 17) {
+                    dealerTotalAce = 0;
+                    var maxCardNum = cards.length - 1;
+                    
+                    // Get random card and value for dealer
+                    cardNumDealer = Math.floor(Math.random()*(maxCardNum));
+                    if (cardNumDealer == 0) cardNumDealer++;        // in case the dealer pulls a back card image, which is at index 0
+                    img = cards[cardNumDealer];
+                    cardValue = calcCardVal(img);
+                    console.log("  => " + cardNumDealer + " | " + img + " | " + cardValue);
+
+                    // add cardValue to dealer's total
+                    dealerTotal += cardValue;
+                    updateTotals();
+
+                    // move selected cards out of deck
+                    cardsOutOfDeck.push(cards.splice(cardNumDealer,1));
+                    console.log(" => Cards Removed: " + cardsOutOfDeck);
+
+
+                    // change dealer card images
+                    if (dealerCardCounter == 0) {
+                        document.getElementById('dealerHand1').src = `./cards/${img}`;
+                    } else if (dealerCardCounter == 1) {
+                        document.getElementById('dealerHand2').src = `./cards/${img}`;
+                    } else if (dealerCardCounter >= 2) {
+                        appendDealerCard(img);
+                    }
+                    dealerCardCounter++;
+                }
             }
 
             function calcCardVal(img) {
@@ -118,7 +157,58 @@
                 // updates totals
                 var playerTotalStr = "<h3> Total: " + playerTotal + " </h3></br>";
                 document.getElementById('playerTotalDiv').innerHTML = playerTotalStr;
+
+                var dealerTotalStr = "<h3> Total: " + dealerTotal + " </h3>";
+                document.getElementById('dealerTotalDiv').innerHTML = dealerTotalStr;
             }
+
+            function appendPlayerCard(img) {
+                // append card image to player's hand instead of updating tags
+                var newCard = document.createElement('img');
+                newCard.width = 100;
+                newCard.height = 140;
+                newCard.src = `./cards/${img}`;
+                document.getElementById('player').appendChild(newCard);
+            }
+
+            function appendDealerCard(img) {
+                // append card image to dealer's hand
+                var newCard = document.createElement('img');
+                newCard.width = 100;
+                newCard.height = 140;
+                newCard.src = `./cards/${img}`;
+                document.getElementById('dealer').appendChild(newCard);
+            }
+
+            function roundCheck() {
+                // dealer
+                if (dealerTotal == 21) {
+                    disableButtons();
+                    window.alert("DEALER BLACKJACK! Your Score: " + playerTotal);
+                } else if (dealerTotal > 21) {
+                    disableButtons();
+                    window.alert("DEALER BUST! You win!");
+                }
+
+                // player
+                if (playerTotal == 21) {
+                    disableButtons();
+                    window.alert("BLACKJACK! You win!");
+                } else if (playerTotal > 21) {
+                    disableButtons();
+                    window.alert("BUST! Your Score: " + playerTotal + " > 21");
+                }
+                else {
+                    console.log("Total: " + playerTotal + " |  Stand or Hit?");
+                }
+            }
+
+            function disableButtons() {
+                document.getElementById('hitButton').disabled = true;
+                document.getElementById('standButton').disabled = true;
+            }
+
+
             // Main code
             cards = ['back.png', '2s.png', '3s.png', '4s.png', '5s.png', '6s.png', '7s.png', '8s.png', '9s.png', '10s.png', 'as.png',
             'js.png', 'qs.png', 'ks.png', '2c.png', '3c.png', '4c.png', '5c.png', '6c.png', '7c.png', '8c.png', '9c.png', '10c.png', 'ac.png',
@@ -126,17 +216,19 @@
             'jd.png', 'qd.png', 'kd.png', '2h.png', '3h.png', '4h.png', '5h.png', '6h.png', '7h.png', '8h.png', '9h.png', '10h.png', 'ah.png',
             'jh.png', 'qh.png', 'kh.png'];
 
-            initGame();
+
             cardsOutOfDeck = [];
             var cardNum = 0;
-            var playerCardCounter = 0;
+            var cardNumDealer = 0;
 
             playerLowTotal = 0;
             playerHighTotal = 0;
 
             var dealerTotal = 0;
-            var dealerTotalAce = 0;
+            var dealerCardCounter = 0;
+            
             var playerTotal = 0;
+            var playerCardCounter = 0;
 
             document.getElementById('dealButton').disabled = false;
             document.getElementById('hitButton').disabled = true;
