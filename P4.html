@@ -6,8 +6,7 @@
         <div>
             <h1> Dealer's hand: </h1>
             <div id="dealer">
-                <img width="80" height="120" src="cards/back.png" id="dealerHand1"/>
-                <img width="80" height="120" src="cards/back.png" id="dealerHand2"/>
+                <img width="80" height="120" id="dealerHand1"/>
             </div>
 
             <div id="dealerTotalDiv">
@@ -34,8 +33,6 @@
         <button id="dealButton" onClick="deal()"> Deal </button>
 
         <div id="results">
-            
-        </div>
 
         
         <script type="text/javascript">
@@ -101,11 +98,17 @@
 
                     // change dealer card images
                     if (dealerCardCounter == 0) {
+
                         document.getElementById('dealerHand1').src = `./cards/${img}`;
-                    } else if (dealerCardCounter == 1) {
-                        document.getElementById('dealerHand2').src = `./cards/${img}`;
-                    } else if (dealerCardCounter >= 2) {
+                        dealerFirstCardVal = cardValue;
+
+                        var dealerTotalStr = "<h3> Total: " + dealerFirstCardVal + " </h3>";
+                        document.getElementById('dealerTotalDiv').innerHTML = dealerTotalStr;
+
+                    } else {
+
                         appendDealerCard(img);
+                        
                     }
                     dealerCardCounter++;
                 }
@@ -149,7 +152,9 @@
                 // updates totals
                 var playerTotalStr = "<h3> Total: " + playerTotal + " </h3></br>";
                 document.getElementById('playerTotalDiv').innerHTML = playerTotalStr;
+            }
 
+            function updateDealerTotal() {
                 var dealerTotalStr = "<h3> Total: " + dealerTotal + " </h3>";
                 document.getElementById('dealerTotalDiv').innerHTML = dealerTotalStr;
             }
@@ -168,36 +173,53 @@
                 var newCard = document.createElement('img');
                 newCard.width = 80;
                 newCard.height = 120;
-                newCard.src = `./cards/${img}`;
+                newCard.actualsrc = `./cards/${img}`;
+                newCard.src = `./cards/back.png`;
                 document.getElementById('dealer').appendChild(newCard);
             }
 
             function roundCheck() {
                 // dealer
                 if (dealerTotal == 21) {
-                    disableButtons();
-                    showResults("DEALER BLACKJACK! Your Score: " + playerTotal);
+                    endGame("DEALER BLACKJACK! Your Score: " + playerTotal);
                 } else if (dealerTotal > 21) {
-                    disableButtons();
-                    showResults("DEALER BUST! You win!");
+                    endGame("DEALER BUST! You win!");
                 }
+
 
                 // player
                 if (playerTotal == 21) {
-                    disableButtons();
-                    showResults("BLACKJACK! You win!");
+                    endGame("BLACKJACK! You win!");
                 } else if (playerTotal > 21) {
-                    disableButtons();
-                    showResults("BUST! Your Score: " + playerTotal + " > 21");
+                    endGame("BUST! Your Score: " + playerTotal + " > 21");
                 }
                 else {
                     console.log("Total: " + playerTotal + " |  Stand or Hit?");
                 }
             }
 
-            function showResults(result) {
+            function endGame(result) {
+
                 var resultString = "<h2> " + result + " </h2>";
                 document.getElementById('results').innerHTML = resultString;
+
+                disableButtons();
+                revealDealerHand();
+                updateDealerTotal();
+
+            }
+
+            function revealDealerHand() {
+                var dealerHand = document.getElementById('dealer');
+                var handChildren = dealerHand.children;
+
+                for (var i = 0; i < handChildren.length; i++) {
+                    var currCard = handChildren[i];
+
+                    if (currCard.id != 'dealerHand1') {
+                        currCard.src = currCard.actualsrc;
+                    }
+                }
             }
 
             function disableButtons() {
@@ -225,6 +247,7 @@
 
             var dealerTotal = 0;
             var dealerCardCounter = 0;
+            var dealerFirstCardVal = 0;
             
             var playerTotal = 0;
             var playerCardCounter = 0;
