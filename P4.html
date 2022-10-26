@@ -6,8 +6,8 @@
         <div>
             <h1> Dealer's hand: </h1>
             <div id="dealer">
-                <img width="100" height="140" src="cards/back.png" id="dealerHand1"/>
-                <img width="100" height="140" src="cards/back.png" id="dealerHand2"/>
+                <img width="80" height="120" src="cards/back.png" id="dealerHand1"/>
+                <img width="80" height="120" src="cards/back.png" id="dealerHand2"/>
             </div>
 
             <div id="dealerTotalDiv">
@@ -20,8 +20,7 @@
         <div>
             <h1> Your hand: </h1>
             <div id="player">
-                <img width="100" height="140" src="cards/back.png" id="playerHand1"/>
-                <img width="100" height="140" src="cards/back.png" id="playerHand2"/>
+                
             </div>
             
             <div id="playerTotalDiv">
@@ -30,20 +29,27 @@
             
         </div>
 
-        <button id="hitButton" onClick="getCard(); getDealerCard(); roundCheck()"> Hit </button>
+        <button id="hitButton" onClick="getCard(); roundCheck()"> Hit </button>
         <button id="standButton" onClick="getDealerCard(); roundCheck()"> Stand </button>
-        <button id="dealButton" onClick="deal(); roundCheck()"> Deal </button>
+        <button id="dealButton" onClick="deal()"> Deal </button>
+
+        <div id="results">
+            
+        </div>
+
         
         <script type="text/javascript">
             // Methods
             function initGame() {
+                getCard();
+                getCard();
+                getDealerCard();
+                getDealerCard();
+                roundCheck();
             }
 
             function deal() {
-                getCard();
-                getCard();
-                getDealerCard();
-                getDealerCard();
+                location.reload();
             }
 
             function getCard() {
@@ -65,22 +71,8 @@
                 cardsOutOfDeck.push(cards.splice(cardNum, 1));
                 console.log("  => Cards Removed: " + cardsOutOfDeck);
                 
-                // if a card isn't dealt, deal left card and hit btn is disabled
-                if (playerCardCounter == 0) { 
-                    document.getElementById('playerHand1').src = `./cards/${img}`;
-                }
-                // if 1 card is dealt, deal right card, disable the deal btn, and enable hit and stand btns
-                else if (playerCardCounter == 1) {
-                    document.getElementById('playerHand2').src = `./cards/${img}`;
-                    document.getElementById('dealButton').disabled = true;
-                    document.getElementById('hitButton').disabled = false;
-                    document.getElementById('standButton').disabled = false;
-                    
-                }
-                // if 2 cards are dealt, deal a 3rd card
-                else if (playerCardCounter >= 2) {
-                    appendPlayerCard(img);
-                }
+                // adding cards to player's hand
+                appendPlayerCard(img);
                 playerCardCounter++;
   
             }
@@ -165,8 +157,8 @@
             function appendPlayerCard(img) {
                 // append card image to player's hand instead of updating tags
                 var newCard = document.createElement('img');
-                newCard.width = 100;
-                newCard.height = 140;
+                newCard.width = 80;
+                newCard.height = 120;
                 newCard.src = `./cards/${img}`;
                 document.getElementById('player').appendChild(newCard);
             }
@@ -174,8 +166,8 @@
             function appendDealerCard(img) {
                 // append card image to dealer's hand
                 var newCard = document.createElement('img');
-                newCard.width = 100;
-                newCard.height = 140;
+                newCard.width = 80;
+                newCard.height = 120;
                 newCard.src = `./cards/${img}`;
                 document.getElementById('dealer').appendChild(newCard);
             }
@@ -184,23 +176,28 @@
                 // dealer
                 if (dealerTotal == 21) {
                     disableButtons();
-                    window.alert("DEALER BLACKJACK! Your Score: " + playerTotal);
+                    showResults("DEALER BLACKJACK! Your Score: " + playerTotal);
                 } else if (dealerTotal > 21) {
                     disableButtons();
-                    window.alert("DEALER BUST! You win!");
+                    showResults("DEALER BUST! You win!");
                 }
 
                 // player
                 if (playerTotal == 21) {
                     disableButtons();
-                    window.alert("BLACKJACK! You win!");
+                    showResults("BLACKJACK! You win!");
                 } else if (playerTotal > 21) {
                     disableButtons();
-                    window.alert("BUST! Your Score: " + playerTotal + " > 21");
+                    showResults("BUST! Your Score: " + playerTotal + " > 21");
                 }
                 else {
                     console.log("Total: " + playerTotal + " |  Stand or Hit?");
                 }
+            }
+
+            function showResults(result) {
+                var resultString = "<h2> " + result + " </h2>";
+                document.getElementById('results').innerHTML = resultString;
             }
 
             function disableButtons() {
@@ -210,6 +207,8 @@
 
 
             // Main code
+            window.onload = initGame;
+
             cards = ['back.png', '2s.png', '3s.png', '4s.png', '5s.png', '6s.png', '7s.png', '8s.png', '9s.png', '10s.png', 'as.png',
             'js.png', 'qs.png', 'ks.png', '2c.png', '3c.png', '4c.png', '5c.png', '6c.png', '7c.png', '8c.png', '9c.png', '10c.png', 'ac.png',
             'jc.png', 'qc.png', 'kc.png', '2d.png', '3d.png', '4d.png', '5d.png', '6d.png', '7d.png', '8d.png', '9d.png', '10d.png', 'ad.png',
@@ -231,8 +230,8 @@
             var playerCardCounter = 0;
 
             document.getElementById('dealButton').disabled = false;
-            document.getElementById('hitButton').disabled = true;
-            document.getElementById('standButton').disabled = true;
+            document.getElementById('hitButton').disabled = false;
+            document.getElementById('standButton').disabled = false;
 
         </script>
     </body>
