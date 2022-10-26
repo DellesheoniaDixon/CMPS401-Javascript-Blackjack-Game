@@ -50,7 +50,6 @@
             }
 
             function getCard() {
-                var playerTotalAce = 0;     // every time the player gets a card, playerTotalAce = 0 (will make skip if statement if the card the player gets isn't an Ace)
                 var maxCardNum = cards.length - 1;
                 console.log("IMG ARR LENGTH: " + cards.length);
 
@@ -61,7 +60,10 @@
                 console.log("  => " + cardNum + " | " + img + " | " + cardValue);
 
                 // adds cardValue to playerTotal and updates the total headers    
-                playerTotal += cardValue;              
+                playerTotal += cardValue;         
+                
+                if (img.charAt(0) == 'a') playerAceCount++;
+                
                 updateTotals();
 
                 //moves selected cards from cards arr to cardsOutOfDeck arr
@@ -70,14 +72,14 @@
                 
                 // adding cards to player's hand
                 appendPlayerCard(img);
+                playerAceTotal = playerTotal + (11 * playerAceCount);
                 playerCardCounter++;
   
             }
 
             function getDealerCard() {
                 // the dealer has to stop pulling cards if they have a value of 17 or higher
-                if (dealerTotal < 17) {
-                    dealerTotalAce = 0;
+                if ((dealerTotal + (1 * dealerAceCount)) < 17) {
                     var maxCardNum = cards.length - 1;
                     
                     // Get random card and value for dealer
@@ -89,6 +91,9 @@
 
                     // add cardValue to dealer's total
                     dealerTotal += cardValue;
+
+                    if (img.charAt(0) == 'a') dealerAceCount++;
+
                     updateTotals();
 
                     // move selected cards out of deck
@@ -100,16 +105,16 @@
                     if (dealerCardCounter == 0) {
 
                         document.getElementById('dealerHand1').src = `./cards/${img}`;
-                        dealerFirstCardVal = cardValue;
 
-                        var dealerTotalStr = "<h3> Total: " + dealerFirstCardVal + " </h3>";
-                        document.getElementById('dealerTotalDiv').innerHTML = dealerTotalStr;
+                        updateDealerTotal();
 
                     } else {
 
                         appendDealerCard(img);
                         
                     }
+
+                    dealerAceTotal = dealerTotal + (11 * dealerAceCount);
                     dealerCardCounter++;
                 }
             }
@@ -129,17 +134,8 @@
                 }
                 // if card drawn is an ace
                 else if (str == 'a') {
-                    // if playerTotal > 10 (11 + 11 = 22), player would bust
-                    if (playerTotal > 10) {
-                        num = 1;
-                    }
-                    // else playerTotal <= 10 (10 + 11 = 21), Ace = 1 or 11
-                    else {  
-                        //playerLowTotal = playerTotal + 1;   //keeps playerTotal if Ace = 1
-                        //playerHighTotal = playerTotal + 11;
-
-                        num = 11;
-                    }
+                    // don't add for the ace, the value will be handled outside of this function
+                    num = 0;
                 }
                 // just parse if not 10 or a face card
                 else {
@@ -150,12 +146,24 @@
 
             function updateTotals() {
                 // updates totals
-                var playerTotalStr = "<h3> Total: " + playerTotal + " </h3></br>";
+                var playerTotalStr = "<h3> Total: " + (playerTotal + (1 * playerAceCount));
+
+                if (playerAceCount > 0 && playerAceTotal <= 21) {
+                    playerTotalStr += (" / " + playerAceTotal);
+                }
+
+                playerTotalStr +=  " </h3></br>"
                 document.getElementById('playerTotalDiv').innerHTML = playerTotalStr;
             }
 
             function updateDealerTotal() {
-                var dealerTotalStr = "<h3> Total: " + dealerTotal + " </h3>";
+                var dealerTotalStr = "<h3> Total: " + (dealerTotal + (1 * dealerAceCount));
+
+                if (dealerAceCount > 0 && dealerAceTotal <= 21) {
+                    dealerTotalStr += (" / " + dealerAceTotal);
+                }
+
+                dealerTotalStr += " </h3>";
                 document.getElementById('dealerTotalDiv').innerHTML = dealerTotalStr;
             }
 
@@ -180,21 +188,21 @@
 
             function roundCheck() {
                 // dealer
-                if (dealerTotal == 21) {
+                if ((dealerTotal + (1 * dealerAceCount)) == 21 || dealerAceTotal == 21) {
                     endGame("DEALER BLACKJACK! Your Score: " + playerTotal);
-                } else if (dealerTotal > 21) {
+                } else if ((dealerTotal + (1 * dealerAceCount)) > 21) {
                     endGame("DEALER BUST! You win!");
                 }
 
 
                 // player
-                if (playerTotal == 21) {
+                if ((playerTotal + (1 * playerAceCount)) == 21 || playerAceTotal == 21) {
                     endGame("BLACKJACK! You win!");
-                } else if (playerTotal > 21) {
-                    endGame("BUST! Your Score: " + playerTotal + " > 21");
+                } else if ((playerTotal + (1 * playerAceCount)) > 21) {
+                    endGame("BUST! Your Score: " + (playerTotal + (1 * playerAceCount)) + " > 21");
                 }
                 else {
-                    console.log("Total: " + playerTotal + " |  Stand or Hit?");
+                    console.log("Total: " + (playerTotal + (1 * playerAceCount)) + " |  Stand or Hit?");
                 }
             }
 
@@ -247,10 +255,14 @@
 
             var dealerTotal = 0;
             var dealerCardCounter = 0;
+            var dealerAceCount = 0;
+            var dealerAceTotal = 0;
             var dealerFirstCardVal = 0;
             
             var playerTotal = 0;
             var playerCardCounter = 0;
+            var playerAceCount = 0;
+            var playerAceTotal = 0;
 
             document.getElementById('dealButton').disabled = false;
             document.getElementById('hitButton').disabled = false;
