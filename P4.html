@@ -29,7 +29,7 @@
         </div>
 
         <button id="hitButton" onClick="getCard(); roundCheck()"> Hit </button>
-        <button id="standButton" onClick="getDealerCard(); roundCheck()"> Stand </button>
+        <button id="standButton" onClick="stand()"> Stand </button>
         <button id="dealButton" onClick="deal()"> Deal </button>
 
         <div id="results">
@@ -43,6 +43,21 @@
                 getDealerCard();
                 getDealerCard();
                 roundCheck();
+                lastAction = 2;
+            }
+
+            function stand() {
+
+                if(dealerAceTotal < 17 && dealerAceTotal != dealerTotal) {
+                    getDealerCard();
+                } else if (dealerAceTotal > 21 && (dealerTotal + (1 * dealerAceCount)) < 17) {
+                    getDealerCard();
+                } else if (dealerAceTotal == dealerTotal && dealerTotal < 17) {
+                    getDealerCard();
+                }
+                
+                roundCheck();
+                lastAction = 2;
             }
 
             function deal() {
@@ -50,6 +65,8 @@
             }
 
             function getCard() {
+                lastAction = 1;
+                
                 var maxCardNum = cards.length - 1;
                 console.log("IMG ARR LENGTH: " + cards.length);
 
@@ -74,7 +91,6 @@
                 appendPlayerCard(img);
                 playerAceTotal = playerTotal + (11 * playerAceCount);
                 playerCardCounter++;
-  
             }
 
             function getDealerCard() {
@@ -147,6 +163,7 @@
             function updateTotals() {
                 // updates totals
                 var playerTotalStr = "<h3> Total: " + (playerTotal + (1 * playerAceCount));
+                playerAceTotal = playerTotal + (11 * playerAceCount);
 
                 if (playerAceCount > 0 && playerAceTotal <= 21) {
                     playerTotalStr += (" / " + playerAceTotal);
@@ -158,6 +175,7 @@
 
             function updateDealerTotal() {
                 var dealerTotalStr = "<h3> Total: " + (dealerTotal + (1 * dealerAceCount));
+                dealerAceTotal = dealerTotal + (11 * dealerAceCount);
 
                 if (dealerAceCount > 0 && dealerAceTotal <= 21) {
                     dealerTotalStr += (" / " + dealerAceTotal);
@@ -187,23 +205,65 @@
             }
 
             function roundCheck() {
+                var dealerActualTotal = dealerTotal + (1 * dealerAceCount);
+                var playerActualTotal = playerTotal + (1 * playerAceCount);
+
+
+                // tie
+                if (dealerActualTotal == 21
+                && (dealerActualTotal == playerActualTotal
+                ||  dealerActualTotal == playerAceTotal)) {
+                    endGame("TIE!");
+                } else if (dealerAceTotal == 21
+                && (dealerAceTotal == playerActualTotal
+                ||  dealerAceTotal == playerAceTotal)) {
+                    endGame("TIE!");
+                }
+
                 // dealer
-                if ((dealerTotal + (1 * dealerAceCount)) == 21 || dealerAceTotal == 21) {
-                    endGame("DEALER BLACKJACK! Your Score: " + playerTotal);
-                } else if ((dealerTotal + (1 * dealerAceCount)) > 21) {
+                else if (dealerActualTotal == 21 || dealerAceTotal == 21) {
+                    endGame("DEALER BLACKJACK!");
+                } else if (dealerActualTotal > 21) {
                     endGame("DEALER BUST! You win!");
                 }
 
-
                 // player
-                if ((playerTotal + (1 * playerAceCount)) == 21 || playerAceTotal == 21) {
+                else if (playerActualTotal == 21 || playerAceTotal == 21) {
                     endGame("BLACKJACK! You win!");
-                } else if ((playerTotal + (1 * playerAceCount)) > 21) {
-                    endGame("BUST! Your Score: " + (playerTotal + (1 * playerAceCount)) + " > 21");
+                } else if (playerActualTotal > 21) {
+                    endGame("BUST!");
                 }
-                else {
-                    console.log("Total: " + (playerTotal + (1 * playerAceCount)) + " |  Stand or Hit?");
+
+                // ending game if no one busts/gets blackjack
+                else if (lastAction == 2) {
+
+                    // tie
+                    if (dealerActualTotal == playerActualTotal
+                    || dealerAceTotal == playerActualTotal
+                    || dealerAceTotal == playerAceTotal) {
+                        endGame("TIE!");
+                    } 
+                    
+                    // higher dealer score
+                    else if ((dealerActualTotal > playerActualTotal && dealerActualTotal > playerAceTotal && !(playerAceTotal > 21)) 
+                    || dealerActualTotal > playerAceTotal
+                    || (dealerAceTotal > playerAceTotal && !(dealerAceTotal > 21))) {
+                        endGame("Dealer has higher score. You lose.");
+                    }
+
+                    // higher player score
+
+                    else if ((playerActualTotal > dealerActualTotal && playerActualTotal > dealerAceTotal && !(dealerAceTotal > 21))
+                    || playerActualTotal > dealerAceTotal
+                    || (playerAceTotal > dealerAceTotal && !(playerAceTotal > 21))) {
+                        endGame("Player has higher score. You win!");
+                    }
+
+                } else {
+                    console.log("Total: " + playerActualTotal + " |  Stand or Hit?");
                 }
+
+                console.log(lastAction);
             }
 
             function endGame(result) {
@@ -263,6 +323,9 @@
             var playerCardCounter = 0;
             var playerAceCount = 0;
             var playerAceTotal = 0;
+
+            // Keep track of player's last button press. 1 for hit, 2 for stand
+            var lastAction = 0;
 
             document.getElementById('dealButton').disabled = false;
             document.getElementById('hitButton').disabled = false;
