@@ -95,7 +95,9 @@
 
             function getDealerCard() {
                 // the dealer has to stop pulling cards if they have a value of 17 or higher
+                lastAction = 1;
                 if ((dealerTotal + (1 * dealerAceCount)) < 17) {
+
                     var maxCardNum = cards.length - 1;
                     
                     // Get random card and value for dealer
@@ -235,26 +237,29 @@
                 }
 
                 // ending game if no one busts/gets blackjack
-                else if (lastAction == 2) {
+                if (lastAction == 2) {
 
                     // tie
                     if (dealerActualTotal == playerActualTotal
+                    || dealerActualTotal == playerAceTotal
                     || dealerAceTotal == playerActualTotal
                     || dealerAceTotal == playerAceTotal) {
                         endGame("TIE!");
                     } 
                     
                     // higher dealer score
-                    else if ((dealerActualTotal > playerActualTotal && dealerActualTotal > playerAceTotal && !(playerAceTotal > 21)) 
-                    || dealerActualTotal > playerAceTotal
+                    else if ((dealerActualTotal > playerActualTotal && playerAceTotal > 21) 
+                    || (dealerActualTotal > playerActualTotal && playerAceTotal < 21)
+                    || (dealerActualTotal > playerAceTotal && !(playerAceTotal > 21))
                     || (dealerAceTotal > playerAceTotal && !(dealerAceTotal > 21))) {
                         endGame("Dealer has higher score. You lose.");
                     }
 
                     // higher player score
 
-                    else if ((playerActualTotal > dealerActualTotal && playerActualTotal > dealerAceTotal && !(dealerAceTotal > 21))
-                    || playerActualTotal > dealerAceTotal
+                    else if ((playerActualTotal > dealerActualTotal && dealerAceTotal > 21)
+                    || (playerActualTotal > dealerActualTotal && dealerAceTotal < 21)
+                    || (playerActualTotal > dealerAceTotal && !(playerAceTotal > 21))
                     || (playerAceTotal > dealerAceTotal && !(playerAceTotal > 21))) {
                         endGame("Player has higher score. You win!");
                     }
@@ -263,7 +268,8 @@
                     console.log("Total: " + playerActualTotal + " |  Stand or Hit?");
                 }
 
-                console.log(lastAction);
+                lastAction = 2;
+
             }
 
             function endGame(result) {
